@@ -584,7 +584,7 @@ class ImageToImageStep(FunctionBasedStep):
         """
         defaults = dict(name='thresh_crop', function=SimpleAutoImageCropper, input_image_path='',
                         output_image_path='', )
-        override_dict = {**defaults, **overrides}
+        override_dict = defaults | overrides
         try:
             return cls(**override_dict)
         except RuntimeError as err:
@@ -608,7 +608,7 @@ class ImageToImageStep(FunctionBasedStep):
         defaults = dict(name='moco_frames_above_mean', function=motion_corr_frames_above_mean_value,
                         input_image_path='', output_image_path='', motion_target_option='mean_image', verbose=verbose,
                         half_life=None, )
-        override_dict = {**defaults, **overrides}
+        override_dict = defaults | overrides
         try:
             return cls(**override_dict)
         except RuntimeError as err:
@@ -633,7 +633,7 @@ class ImageToImageStep(FunctionBasedStep):
                         input_image_path='', output_image_path='',
                         motion_target_option='weighted_series_sum', w_size=60.0,
                         verbose=verbose)
-        override_dict = {**defaults, **overrides}
+        override_dict = defaults | overrides
         try:
             return cls(**override_dict)
         except RuntimeError as err:
@@ -660,7 +660,7 @@ class ImageToImageStep(FunctionBasedStep):
         defaults = dict(name='register_pet_to_t1', function=register_pet, input_image_path='', output_image_path='',
                         reference_image_path=reference_image_path, motion_target_option='weighted_series_sum',
                         verbose=verbose, half_life=half_life, )
-        override_dict = {**defaults, **overrides}
+        override_dict = defaults | overrides
         try:
             return cls(**override_dict)
         except RuntimeError as err:
