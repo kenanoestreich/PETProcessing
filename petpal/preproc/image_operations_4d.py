@@ -313,10 +313,10 @@ def brain_mask(input_image_4d_path: str,
     ants.image_write(image=mask,filename=out_image_path)
 
 
-def extract_mean_roi_tac_from_nifty_using_mask(input_image_4d_numpy: np.ndarray,
-                                               segmentation_image_numpy: np.ndarray,
-                                               region: int,
-                                               verbose: bool) -> np.ndarray:
+def extract_mean_roi_tac_from_nifty_using_segmentation(input_image_4d_numpy: np.ndarray,
+                                                       segmentation_image_numpy: np.ndarray,
+                                                       region: int,
+                                                       verbose: bool) -> np.ndarray:
     """
     Creates a time-activity curve (TAC) by computing the average value within a region, for each 
     frame in a 4D PET image series. Takes as input a PET image, which has been registered to
