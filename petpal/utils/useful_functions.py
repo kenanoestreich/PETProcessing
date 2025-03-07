@@ -143,6 +143,9 @@ def weighted_series_sum(input_image_4d_path: str,
     Raises:
         ValueError: If ``half_life`` is zero or negative.
     """
+    if out_image_path is not None:
+        image_io.validate_output_filepath(filepath=out_image_path)
+
     if half_life <= 0:
         raise ValueError('(ImageOps4d): Radioisotope half life is zero or negative.')
     pet_meta = image_io.load_metadata_for_nifti_with_same_filename(input_image_4d_path)

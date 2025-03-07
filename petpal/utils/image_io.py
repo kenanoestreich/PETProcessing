@@ -19,7 +19,6 @@ import pandas as pd
 
 from . import useful_functions
 
-
 _HALFLIVES_ = {
     "c11": 1224,
     "n13": 599,
@@ -50,7 +49,7 @@ def write_dict_to_json(meta_data_dict: dict, out_path: str):
 
 def convert_ctab_to_dseg(ctab_path: str,
                          dseg_path: str,
-                         column_names: list[str]=None):
+                         column_names: list[str] = None):
     """
     Convert a FreeSurfer compatible color table into a BIDS compatible label
     map ``dseg.tsv``.
@@ -61,8 +60,8 @@ def convert_ctab_to_dseg(ctab_path: str,
         column_names (list[str]): List of columns present in color table. Must
             include 'mapping' and 'name'.
     """
-    if column_names==None:
-        column_names = ['mapping','name','r','g','b','a','ttype']
+    if column_names == None:
+        column_names = ['mapping', 'name', 'r', 'g', 'b', 'a', 'ttype']
     fs_ctab = pd.read_csv(ctab_path,
                           delim_whitespace=True,
                           header=None,
@@ -72,12 +71,13 @@ def convert_ctab_to_dseg(ctab_path: str,
                    'mapping': fs_ctab['mapping'],
                    'abbreviation': useful_functions.build_label_map(fs_ctab['name'])}
     label_map = pd.DataFrame(data=label_names,
-                             columns=['name','abbreviation','mapping']).rename_axis('index')
+                             columns=['name', 'abbreviation', 'mapping']).rename_axis('index')
     label_map = label_map.sort_values(by=['mapping'])
-    label_map.to_csv(dseg_path,sep='\t')
+    label_map.to_csv(dseg_path, sep='\t')
     return label_map
 
-def _gen_meta_data_filepath_for_nifti(nifty_path:str):
+
+def _gen_meta_data_filepath_for_nifti(nifty_path: str):
     """
     Generates the corresponding metadata file path for a given nifti file path.
 
@@ -161,11 +161,11 @@ def flatten_metadata(metadata: dict) -> dict:
     metadata_for_tsv = {}
     for key in metadata:
         data = metadata[key]
-        if isinstance(data,list):
-            for i,val in enumerate(data):
-                key_new = f'{key}_{i+1}'
+        if isinstance(data, list):
+            for i, val in enumerate(data):
+                key_new = f'{key}_{i + 1}'
                 metadata_for_tsv[key_new] = val
-        elif isinstance(data,dict):
+        elif isinstance(data, dict):
             for inner_key in data:
                 key_new = f'{key}_{inner_key}'
                 metadata_for_tsv[key_new] = data[inner_key]
@@ -217,6 +217,7 @@ def safe_copy_meta(input_image_path: str,
     meta_data_dict = load_metadata_for_nifti_with_same_filename(input_image_path)
     write_dict_to_json(meta_data_dict=meta_data_dict, out_path=copy_meta_path)
 
+
 def get_half_life_from_radionuclide(meta_data_file_path: str) -> float:
     """
     Extracts the radionuclide half-life in seconds from a nifti metadata file. This function
@@ -243,6 +244,7 @@ def get_half_life_from_radionuclide(meta_data_file_path: str) -> float:
 
     return _HALFLIVES_[radionuclide]
 
+
 def get_half_life_from_meta(meta_data_file_path: str):
     """
     Extracts the radionuclide half-life (usually in seconds) from a nifti metadata file.
@@ -265,7 +267,8 @@ def get_half_life_from_meta(meta_data_file_path: str):
     except KeyError as exc:
         raise KeyError("RadionuclideHalfLife not found in meta-data file.") from exc
 
-def get_half_life_from_nifti(image_path:str):
+
+def get_half_life_from_nifti(image_path: str):
     """
     Retrieves the radionuclide half-life from a nifti image file.
 
@@ -325,9 +328,9 @@ def get_frame_timing_info_for_nifti(image_path: str) -> dict[str, np.ndarray]:
     except KeyError:
         frm_starts = np.diff(frm_ends)
     try:
-        decay = np.asarray(_meta_data['DecayCorrectionFactor'],float)
+        decay = np.asarray(_meta_data['DecayCorrectionFactor'], float)
     except KeyError:
-        decay = np.asarray(_meta_data['DecayFactor'],float)
+        decay = np.asarray(_meta_data['DecayFactor'], float)
 
     frm_info = {'duration': frm_dur,
                 'start': frm_starts,
@@ -335,6 +338,7 @@ def get_frame_timing_info_for_nifti(image_path: str) -> dict[str, np.ndarray]:
                 'decay': decay}
 
     return frm_info
+
 
 class ImageIO:
     """
@@ -481,7 +485,7 @@ class ImageIO:
         if not os.path.exists(label_map_file):
             raise FileNotFoundError(f"Image file {label_map_file} not found")
 
-        label_map = pd.read_csv(label_map_file,sep='\t')
+        label_map = pd.read_csv(label_map_file, sep='\t')
 
         return label_map
 
@@ -517,7 +521,7 @@ def safe_load_4dpet_nifti(filename: str) -> nibabel.nifti1.Nifti1Image:
 
 def validate_two_images_same_dimensions(image_1: nibabel.nifti1.Nifti1Image,
                                         image_2: nibabel.nifti1.Nifti1Image,
-                                        check_4d: bool=False):
+                                        check_4d: bool = False):
     """
     Check the dimensions of two Nifti1Image objects and verify they have the same shape.
 
@@ -541,6 +545,7 @@ def validate_two_images_same_dimensions(image_1: nibabel.nifti1.Nifti1Image,
 
     if not same_shape:
         raise ValueError(f'Got incompatible image sizes: {shape_1}, {shape_2}.')
+
 
 def get_window_index_pairs_from_durations(frame_durations: np.ndarray, w_size: float):
     r"""
@@ -657,15 +662,33 @@ def km_regional_fits_to_tsv(fit_results_dir: str, out_tsv_dir: str):
     Returns:
         km_fits (pd.DataFrame): DataFrame containing KM fit data for all regions.
     """
-    fit_results_jsons = glob.glob(os.path.join(fit_results_dir,'*.json'))
+    fit_results_jsons = glob.glob(os.path.join(fit_results_dir, '*.json'))
     km_fits = pd.DataFrame()
-    for i,fit in enumerate(fit_results_jsons):
+    for i, fit in enumerate(fit_results_jsons):
         fit_load = safe_load_meta(fit)
         fit_clean = flatten_metadata(fit_load)
         sub, ses = infer_sub_ses_from_tac_path(fit_clean['FilePathTTAC'])
         fit_clean['sub_id'] = sub
         fit_clean['ses_id'] = ses
-        fit_pd = pd.DataFrame(fit_clean,index=[i])
-        km_fits = pd.concat([km_fits,fit_pd])
-    km_fits.to_csv(out_tsv_dir,sep='\t')
+        fit_pd = pd.DataFrame(fit_clean, index=[i])
+        km_fits = pd.concat([km_fits, fit_pd])
+    km_fits.to_csv(out_tsv_dir, sep='\t')
     return km_fits
+
+
+def validate_output_filepath(filepath: str):
+    """
+    Simple test to verify that a file could be written to a directory.
+
+    This function is useful for validating a filepath to which a file would be written before taking the time to compute
+    said file's data.
+
+    Args:
+        filepath (str): Filepath where a file would be written.
+
+    Raises:
+        AssertionError: If the output filepath's parent directory was missing or otherwise inaccessible
+    """
+    parent = pathlib.Path(filepath).parent
+    assert parent.is_dir(), (f'Directory {parent} could not be accessed. '
+                             f'Verify directory exists with correct permissions')
