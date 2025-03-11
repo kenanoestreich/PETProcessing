@@ -36,7 +36,7 @@ from ..utils import image_io, math_lib
 from ..preproc.decay_correction import undo_decay_correction, decay_correct
 
 def stitch_broken_scans(input_image_path: str,
-                        output_image_path: str,
+                        output_image_path: str | None,
                         noninitial_image_paths: list[str]) -> ants.ANTsImage:
     """
     'Stitch' together 2 or more images from one session into a single image.
@@ -131,7 +131,7 @@ def stitch_broken_scans(input_image_path: str,
     return stitched_image
 
 def crop_image(input_image_path: str,
-               out_image_path: str,
+               out_image_path: str| None,
                x_dim: int=256,
                y_dim: int=256) -> nibabel.Nifti1Image:
     """
@@ -271,7 +271,7 @@ def determine_motion_target(motion_target_option: str | tuple | list,
 
 
 def brain_mask(input_image_4d_path: str,
-               out_image_path: str,
+               out_image_path: str | None,
                atlas_image_path: str,
                atlas_mask_path: str,
                motion_target_option='mean_image',
