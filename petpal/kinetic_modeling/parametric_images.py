@@ -309,6 +309,7 @@ class ReferenceTissueParametricImage:
             method (str): RTM method to run. Default 'mrtm2'.
         """
         self.reference_tac = TimeActivityCurveFromFile(tac_path=reference_tac_path)
+        self.pet_image_path = pet_image_path
         self.pet_image = safe_load_4dpet_nifti(pet_image_path)
         self.mask_image = safe_load_4dpet_nifti(mask_image_path)
 
@@ -425,6 +426,7 @@ class ReferenceTissueParametricImage:
         """
         fit_image = self.fit_results
         pet_image = self.pet_image
+        pet_image_path = self.pet_image_path
         fit_nibabel = nibabel.nifti1.Nifti1Image(dataobj=fit_image,
                                                  affine=pet_image.affine,
                                                  header=pet_image.header)
@@ -433,6 +435,8 @@ class ReferenceTissueParametricImage:
             fit_image_path = os.path.join(self.output_directory,
                                     f"{self.output_filename_prefix}_desc-rtmfit_pet.nii.gz")
             nibabel.save(fit_nibabel,fit_image_path)
+            safe_copy_meta(input_image_path=pet_image_path,
+                           out_image_path=fit_image_path)
         except IOError as exc:
             print("An IOError occurred while attempting to write the NIfTI image files.")
             raise exc from None
