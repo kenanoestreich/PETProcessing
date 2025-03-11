@@ -473,7 +473,7 @@ def suvr(input_image_path: str,
 
 def gauss_blur(input_image_path: str,
                blur_size_mm: float,
-               out_image_path: str,
+               out_image_path: str | None,
                verbose: bool,
                use_fwhm: bool=True):
     """
@@ -485,7 +485,7 @@ def gauss_blur(input_image_path: str,
     Args:
         input_image_path (str): Path to 3D or 4D input image to be blurred.
         blur_size_mm (float): Sigma of the Gaussian kernal in mm.
-        out_image_path (str): Path to save the blurred output image.
+        out_image_path (str): Path to save the blurred output image. If None, no image is written.
         verbose (bool): Set to ``True`` to output processing information.
         use_FWHM (bool): If ``True``, ``blur_size_mm`` is interpreted as the
             FWHM of the Gaussian kernal, rather than the standard deviation.
@@ -505,9 +505,10 @@ def gauss_blur(input_image_path: str,
     out_image = nibabel.nifti1.Nifti1Image(dataobj=blur_image,
                                            affine=input_nibabel.affine,
                                            header=input_nibabel.header)
-    nibabel.save(img=out_image,filename=out_image_path)
 
-    image_io.safe_copy_meta(input_image_path=input_image_path,out_image_path=out_image_path)
+    if out_image_path is not None:
+        nibabel.save(img=out_image,filename=out_image_path)
+        image_io.safe_copy_meta(input_image_path=input_image_path,out_image_path=out_image_path)
 
     if verbose:
         print(f'Blurred image saved to {out_image_path}.')
