@@ -217,7 +217,7 @@ def determine_motion_target(motion_target_option: str | tuple | list,
 
     Raises:
         ValueError: If ``motion_target_option`` does not match an acceptable option, or if 
-        ``half_life`` is not specifiedwhen ``motion_target_option`` is not 'mean_image'
+        ``half_life`` is not specified when ``motion_target_option`` is not 'mean_image'
         TypeError: If start and end time are incompatible with ``float`` type.
     """
     if motion_target_option != 'mean_image' and half_life is None:
@@ -275,7 +275,7 @@ def brain_mask(input_image_4d_path: str,
                atlas_image_path: str,
                atlas_mask_path: str,
                motion_target_option='mean_image',
-               half_life: float=None):
+               half_life: float=None) -> ants.ANTsImage:
     """
     Create a brain mask for a PET image. Create target PET image, which is then warped to a
     provided anatomical atlas. The transformation to atlas space is then applied to transform a
@@ -283,10 +283,14 @@ def brain_mask(input_image_4d_path: str,
 
     Args:
         input_image_4d_path (str): Path to input 4D PET image.
-        out_image_path (str): Path to which brain mask in PET space is written.
+        out_image_path (str): Path to which brain mask in PET space is written. If None, no image is written.
         atlas_image_path (str): Path to anatomical atlas image.
         atlas_mask_path (str): Path to brain mask in atlas space.
         motion_target_option: Used to determine 3D target in PET space. Default 'mean_image'.
+        half_life (float): Half-life (in seconds) of the PET radiotracer.
+
+    Returns:
+        ants.ANTsImage: Brain mask image
     
     Note:
         Requires access to an anatomical atlas or scan with a corresponding brain mask on said
@@ -312,7 +316,13 @@ def brain_mask(input_image_4d_path: str,
         interpolator='nearestNeighbor'
     )
     mask = mask_on_pet.get_mask()
-    ants.image_write(image=mask,filename=out_image_path)
+
+    if out_image_path is not None:
+        ants.image_write(image=mask,filename=out_image_path)
+        image_io.safe_copy_meta(input_image_path=input_image_4d_path,
+                                out_image_path=out_image_path)
+
+    return mask
 
 def extract_mean_roi_tac_from_nifti_using_segmentation(input_image_4d_numpy: np.ndarray,
                                                        segmentation_image_numpy: np.ndarray,
