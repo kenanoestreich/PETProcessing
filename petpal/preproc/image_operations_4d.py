@@ -133,7 +133,7 @@ def stitch_broken_scans(input_image_path: str,
 def crop_image(input_image_path: str,
                out_image_path: str,
                x_dim: int=256,
-               y_dim: int=256):
+               y_dim: int=256) -> nibabel.Nifti1Image:
     """
     Crops an image in the X and Y axes to exclude voxels outside of the head. This is done to
     reduce the size of the image for faster processing, while preserving scientifically
@@ -146,7 +146,7 @@ def crop_image(input_image_path: str,
 
     Args:
         input_image_path (str): Path to input image to be cropped.
-        out_image_path (str): Path to which cropped image is saved.
+        out_image_path (str): Path to which cropped image is saved. If None, no image will be written.
         x_dim (int): Size of the X axis of the returned image. Default value 256.
         y_dim (int): Size of the Y axis of the returned image. Default value 256.
     
@@ -168,9 +168,12 @@ def crop_image(input_image_path: str,
 
     cropped_image = image.slicer[center[0]-x_half:center[0]+x_half,
                                  center[1]-y_half:center[1]+y_half]
-    nibabel.save(cropped_image,out_image_path)
-    image_io.safe_copy_meta(input_image_path=input_image_path,
-                            out_image_path=out_image_path)
+
+    if out_image_path is not None:
+        nibabel.save(cropped_image,out_image_path)
+        image_io.safe_copy_meta(input_image_path=input_image_path,
+                                out_image_path=out_image_path)
+
     return cropped_image
 
 
